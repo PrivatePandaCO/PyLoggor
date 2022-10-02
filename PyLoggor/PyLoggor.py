@@ -69,7 +69,7 @@ class PyLoggor:
 		return f" {self.delim} ".join(h)
 
 	def beautify(self, _str, space):
-		return _str.ljust(space)
+		return _str.ljust(space) if _str is not None else ""
 
 	def log(self, *,
 		level: str,
