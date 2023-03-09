@@ -114,31 +114,30 @@ class pyloggor:
     ):
         level = level.title() if self.title_level else level.upper()
 
-        time_str = datetime.fromtimestamp(time.time())
+        time_str = datetime.fromtimestamp(time.time()).strftime(self.datefmt)
 
         if extras:
             extras_str = f"{self.delim} {self.extras_builder(extras)}"
         else:
             extras_str = ""
 
-        beautifed_level = self.beautify(level, self.level_adjustment_space, self.center_level)
-        beautifed_topic = self.beautify(topic, self.topic_adjustment_space, self.center_topic)
-        beautifed_file = self.beautify(file, self.file_adjustment_space, self.center_file)
-
         if level in self.level_symbols.keys():
             level_symbol = self.level_symbols[level]
         else:
             level_symbol = "*"
 
-        msg = f"[{level_symbol}] {time_str} {self.delim} {beautifed_level} {self.delim} {beautifed_file} {self.delim} {beautifed_topic} {self.delim} {msg} {extras_str}"
-        if not self.show_file:
-            msg = msg.replace(f" {self.delim} {beautifed_file} ", "")
-        if not self.show_symbol:
-            msg = msg.replace(f"[{level_symbol}] ", "")
-        if not self.show_time:
-            msg = msg.replace(f"{time_str} {self.delim} ", "")
-        if not self.show_topic:
-            msg = msg.replace(f"{self.delim} {beautifed_topic} ", "")
+        _msg = ""
+        if self.show_symbol:
+            _msg += f"[{level_symbol}] "
+
+        if self.show_time:
+            _msg += f"{time_str} {self.delim} "
+        _msg += f"{self.beautify(level, self.level_adjustment_space, self.center_level)} {self.delim} "
+        if self.show_file:
+            _msg += f"{self.beautify(file, self.file_adjustment_space, self.center_file)} {self.delim} "
+        if self.show_topic:
+            _msg += f"{self.beautify(topic, self.topic_adjustment_space, self.center_topic)} {self.delim} "
+        _msg += f"{msg} {extras_str}"
 
         if level.upper() in self.level_colours.keys():
             level_colour = self.level_colours[level.upper()]
@@ -163,7 +162,7 @@ class pyloggor:
                     console_out = True
 
         if console_out:
-            print(f"{level_colour}{msg}\033[0m")
+            print(f"{level_colour}{_msg}\033[0m")
 
         if file_output is True:
             file_out = True
@@ -177,7 +176,7 @@ class pyloggor:
                 file_out = True
 
         if self.file and file_out:
-            self.file.write(msg)
+            self.file.write(_msg)
 
     def set_level(self, file_output_level=None, console_output_level=None) -> None:
         if file_output_level:
