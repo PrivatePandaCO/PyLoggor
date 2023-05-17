@@ -1,17 +1,31 @@
+import inspect
 import os
+import threading
+import time
 from datetime import datetime
 from typing import Literal, Optional
-import time
+
+import pytz
 
 
 class FileHandler:
-    def __init__(self, fn):
+    def __init__(self, fn, log_freq):
+        self.log_freq = log_freq
         self.fn = fn
+        self.cache = []
         open(fn, "w") if not os.path.exists(fn) else ...
+        threading.Thread(target=self._log, daemon=True).start()
 
     def write(self, msg):
-        with open(self.fn, "a") as f:
-            f.write(f"{msg}\n")
+        self.cache.append(msg)
+
+    def _log(self):
+        while True:
+            if self.cache:
+                f = open(self.fn, "a")
+                f.write("\n".join(self.cache) + "\n")
+                f.close()
+            time.sleep(self.log_freq)
 
 
 class pyloggor:
@@ -21,6 +35,14 @@ class pyloggor:
         "WARNING": "\033[1;33m",
         "ERROR": "\033[1;31m",
         "CRITICAL": "\033[1;35m",
+    }
+
+    default_level_symbols = {
+        "DEBUG": "D",
+        "INFO": "I",
+        "WARNING": "W",
+        "ERROR": "E",
+        "CRITICAL": "C",
     }
 
     def __init__(
@@ -40,20 +62,16 @@ class pyloggor:
         default_colour="\033[1;37m",
         delim="|",
         datefmt=r"%d-%b-%y, %H:%M:%S:%f",
-        level_symbols={
-            "DEBUG": "D",
-            "INFO": "I",
-            "WARNING": "W",
-            "ERROR": "E",
-            "CRITICAL": "C",
-        },
+        level_symbols=default_level_symbols,
+        auto_filename=True,
         show_file=True,
         show_symbol=True,
         show_time=True,
         show_topic=True,
         title_level=False,
+        file_log_freq=3,
     ):
-        self.file = FileHandler(fn) if fn else False
+        self.file = FileHandler(fn, file_log_freq) if fn else False
         self.file_output_level = file_output_level if self.file else "NOLOG"
         self.console_output_level = console_output_level
         self.topic_adjustment_space = topic_adjustment_space
@@ -70,6 +88,7 @@ class pyloggor:
         self.delim = delim
         self.datefmt = datefmt
 
+        self.auto_filename = auto_filename
         self.show_file = show_file
         self.show_symbol = show_symbol
         self.show_time = show_time
@@ -114,7 +133,7 @@ class pyloggor:
     ):
         level = level.title() if self.title_level else level.upper()
 
-        time_str = datetime.fromtimestamp(time.time()).strftime(self.datefmt)
+        time_str = datetime.fromtimestamp(time.time(), tz=pytz.UTC).strftime(self.datefmt)
 
         if extras:
             extras_str = f"{self.delim} {self.extras_builder(extras)}"
@@ -134,6 +153,9 @@ class pyloggor:
             _msg += f"{time_str} {self.delim} "
         _msg += f"{self.beautify(level, self.level_adjustment_space, self.center_level)} {self.delim} "
         if self.show_file:
+            if self.auto_filename:
+                frame = inspect.currentframe().f_back
+                file = f"{os.path.relpath(frame.f_code.co_filename, start=os.getcwd())}:{frame.f_lineno}"
             _msg += f"{self.beautify(file, self.file_adjustment_space, self.center_file)} {self.delim} "
         if self.show_topic:
             _msg += f"{self.beautify(topic, self.topic_adjustment_space, self.center_topic)} {self.delim} "

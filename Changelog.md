@@ -1,3 +1,9 @@
+v1.1.2
+- Add `autofile` parameter:
+    - Automatically fetches the file name and line number of the caller.
+- Add `file_log_freq` parameter:
+    - Time frequency to write to file. Useful to reduce disk IO stress during heavy logging.
+
 v1.1.1
 - Slightly optimize speed and memory by better usage of beautify.
 - Fix datefmt not being used.
