@@ -1,3 +1,7 @@
+v1.1.3
+- Add `'project_root` parameter:
+    - Automatically shortens to full path to the project root.
+
 v1.1.2
 - Add `autofile` parameter:
     - Automatically fetches the file name and line number of the caller.

@@ -64,6 +64,7 @@ class pyloggor:
         datefmt=r"%d-%b-%y, %H:%M:%S:%f",
         level_symbols=default_level_symbols,
         auto_filename=True,
+        project_root="",
         show_file=True,
         show_symbol=True,
         show_time=True,
@@ -88,6 +89,7 @@ class pyloggor:
         self.delim = delim
         self.datefmt = datefmt
 
+        self.project_root = project_root
         self.auto_filename = auto_filename
         self.show_file = show_file
         self.show_symbol = show_symbol
@@ -154,8 +156,21 @@ class pyloggor:
         _msg += f"{self.beautify(level, self.level_adjustment_space, self.center_level)} {self.delim} "
         if self.show_file:
             if self.auto_filename:
+                # a very weird way of finding the right rel path given project root
                 frame = inspect.currentframe().f_back
-                file = f"{os.path.relpath(frame.f_code.co_filename, start=os.getcwd())}:{frame.f_lineno}"
+                filename = frame.f_code.co_filename
+                current_dir = os.path.dirname(filename)
+
+                while True:
+                    if os.path.basename(current_dir) == self.project_root:
+                        break
+                    parent_dir = os.path.dirname(current_dir)
+                    if parent_dir == current_dir:  # Reached the filesystem root
+                        break
+                    current_dir = parent_dir
+
+                file = f"{os.path.join(os.path.basename(current_dir), os.path.relpath(filename, start=current_dir))}:{frame.f_lineno}"
+
             _msg += f"{self.beautify(file, self.file_adjustment_space, self.center_file)} {self.delim} "
         if self.show_topic:
             _msg += f"{self.beautify(topic, self.topic_adjustment_space, self.center_topic)} {self.delim} "
