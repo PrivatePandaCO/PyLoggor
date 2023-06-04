@@ -1,3 +1,7 @@
+v1.1.4
+- Update how timestamp is handled; marginally faster now
+    - Technical: `utcfromtimestamp` is somehow 5 times faster than `fromtimestamp(..., tz=pytz.utc)`
+
 v1.1.3
 - Add `'project_root` parameter:
     - Automatically shortens to full path to the project root.

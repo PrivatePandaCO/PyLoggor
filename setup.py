@@ -2,14 +2,13 @@ from distutils.core import setup
 
 setup(
     name="pyloggor",
-    version="1.1.3",
+    version="1.1.4",
     description="An incredibly versatile yet simple logging system.",
     author="Parth Mittal",
     author_email="parth@privatepanda.co",
     url="https://www.github.com/PrivatePandaCO/pyloggor",
     license="MIT",
     packages=["pyloggor"],
-    install_requires=["pytz"],
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     project_urls={

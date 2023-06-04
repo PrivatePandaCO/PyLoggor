@@ -5,8 +5,6 @@ import time
 from datetime import datetime
 from typing import Literal, Optional
 
-import pytz
-
 
 class FileHandler:
     def __init__(self, fn, log_freq):
@@ -135,7 +133,7 @@ class pyloggor:
     ):
         level = level.title() if self.title_level else level.upper()
 
-        time_str = datetime.fromtimestamp(time.time(), tz=pytz.UTC).strftime(self.datefmt)
+        time_str = datetime.utcfromtimestamp(time.time()).strftime(self.datefmt)
 
         if extras:
             extras_str = f"{self.delim} {self.extras_builder(extras)}"
