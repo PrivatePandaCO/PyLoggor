@@ -4,6 +4,7 @@ import threading
 import time
 from datetime import datetime
 from typing import Literal, Optional
+import os
 
 
 class FileHandler:
@@ -103,6 +104,11 @@ class pyloggor:
             "CRITICAL": 4,
             "NOLOG": 5,
         }
+        if os.name == "nt":
+            import ctypes
+
+            kernel32 = ctypes.windll.kernel32
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
     def extras_builder(self, extras):
         h = []
