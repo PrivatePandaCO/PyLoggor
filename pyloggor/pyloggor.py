@@ -24,6 +24,7 @@ class FileHandler:
                 f = open(self.fn, "a")
                 f.write("\n".join(self.cache) + "\n")
                 f.close()
+                self.cache = []
             time.sleep(self.log_freq)
 
 

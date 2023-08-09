@@ -1,3 +1,7 @@
+v1.1.6
+
+- Clear message cache after writing to file to fix repeat writing and memory leak.
+
 v1.1.5
 
 - Implement usage of `SetConsoleMode` to make the text appear coloured by default on windows terminal as well, without user having to enable it manually.
